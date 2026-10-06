@@ -1,0 +1,26 @@
+# Agent Manifest — AgentRegistry entry point
+# AgentRegistry (mediator/registry/agent_registry.py) reads every key below at
+# ROOT level — do NOT nest keys under an `agent:` block.
+id: "CMN-C2-273"
+name: "KaonaviHRProfileAgent"
+namespace: "cmn"
+version: "0.1.0"
+enabled: true
+category: "Cat 2"
+generation_mode: "llm"  # deterministic | llm — LLM-enhanced intent classification +
+                          # field extraction (Step 8e), always falls back to the
+                          # deterministic heuristic; employee_id resolution stays
+                          # 100% deterministic regardless (never LLM-touched)
+industry: "CMN"
+
+base_type: "ToolCallingAgent"
+
+# Entry point — single dotted import path (module.Class), NOT split module:/class:.
+class: "src.graph.graph.KaonaviHRProfileAgent"
+
+required_trust_level: "VERIFIED_EXTERNAL"
+
+# Compile-time gates — declare every ctx.secrets.require() key + constructed extra.
+requires:
+  secrets: ["AZURE_OPENAI_API_KEY", "AZURE_OPENAI_ENDPOINT", "AZURE_OPENAI_DEPLOYMENT"]
+  extras: ["openai"]

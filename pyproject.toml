@@ -1,0 +1,51 @@
+[project]
+name = "cmn-c2-273"
+version = "0.1.0"
+description = "KaonaviHRProfileAgent — AgentCore Template"
+requires-python = ">=3.11"
+# The framework (agenticstar-agentcore) is NOT a public-PyPI dependency; CI
+# installs it from an internal package index. Pinning it here would make
+# `pip install -e .` fail because it is not resolvable from the default index.
+# pyyaml is a real runtime dependency: graph.py imports it to read
+# config/config.yaml at runtime (max_retry/timeout_s + the kaonavi section).
+dependencies = [
+    "agenticstar-agentcore[marketplace,openai]==1.0.3",
+    "pyyaml==6.0.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==9.0.3",
+    "pytest-cov==5.0.0",
+    "pytest-asyncio==1.4.0",
+    "ruff==0.4.4",
+    "mypy==1.10.0",
+    "types-PyYAML==6.0.12.20260815",
+]
+
+[build-system]
+requires = ["setuptools==68.2.2"]
+build-backend = "setuptools.build_meta"
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+# The framework wheel ships untyped: without these two relaxations every
+# subclass of a framework base is a subclass of Any and every framework
+# import is an untyped-import error. Both are scoped, not blanket.
+disallow_subclassing_any = false
+exclude = ["src/examples/"]
+
+[[tool.mypy.overrides]]
+module = ["framework.*", "shared.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+# The untyped wheel makes AgentState resolve to Any, so State(AgentState)
+# fails valid-type on every field - one cause, module-scoped suppression.
+module = ["src.schemas.state"]
+disable_error_code = ["valid-type"]
